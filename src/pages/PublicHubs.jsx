@@ -212,8 +212,21 @@ export default function PublicHubs() {
 }
 
 function HubCard({ hub }) {
+  const canOpen = hub.open;
+  const Wrapper = canOpen ? Link : "div";
+
   return (
-    <div className="group p-5 border border-border rounded-xl bg-card hover:border-foreground/20 transition-all hover:shadow-sm">
+    <Wrapper
+      to={
+        canOpen ? `${createPageUrl("HubDetail")}?slug=${hub.name}` : undefined
+      }
+      aria-disabled={!canOpen}
+      className={`group block p-5 border border-border rounded-xl bg-card transition-all ${
+        canOpen
+          ? "cursor-pointer hover:border-foreground/20 hover:shadow-sm"
+          : "opacity-80"
+      }`}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
@@ -265,6 +278,6 @@ function HubCard({ hub }) {
           {hub.activity}
         </span>
       </div>
-    </div>
+    </Wrapper>
   );
 }

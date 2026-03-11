@@ -26,6 +26,7 @@ export default function HubDetail() {
   const [state, setState] = useState({
     hub: null,
     identities: [],
+    canManage: false,
     isLoading: true,
     error: "",
   });
@@ -38,6 +39,7 @@ export default function HubDetail() {
         setState({
           hub: null,
           identities: [],
+          canManage: false,
           isLoading: false,
           error: "Missing hub slug.",
         });
@@ -50,6 +52,7 @@ export default function HubDetail() {
           setState({
             hub: data?.hub ?? null,
             identities: data?.identities ?? [],
+            canManage: Boolean(data?.canManage),
             isLoading: false,
             error: data?.hub ? "" : "Hub not found.",
           });
@@ -59,6 +62,7 @@ export default function HubDetail() {
           setState({
             hub: null,
             identities: [],
+            canManage: false,
             isLoading: false,
             error: error.message,
           });
@@ -86,7 +90,11 @@ export default function HubDetail() {
       <header className="border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
-            to={createPageUrl("Dashboard")}
+            to={
+              state.canManage
+                ? createPageUrl("Dashboard")
+                : createPageUrl("PublicHubs")
+            }
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -100,12 +108,16 @@ export default function HubDetail() {
             </span>
           </div>
         </div>
-        <Link
-          to={createPageUrl("Settings")}
-          className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent"
-        >
-          <Settings className="w-4 h-4" />
-        </Link>
+        {state.canManage ? (
+          <Link
+            to={createPageUrl("Settings")}
+            className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent"
+          >
+            <Settings className="w-4 h-4" />
+          </Link>
+        ) : (
+          <div className="w-7 h-7" aria-hidden="true" />
+        )}
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
@@ -188,22 +200,29 @@ export default function HubDetail() {
                 <div className="space-y-4">
                   <div className="p-4 border border-border rounded-xl bg-card">
                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                      Quick actions
+                      {state.canManage ? "Quick actions" : "Viewing mode"}
                     </p>
-                    <div className="space-y-2">
-                      <Link
-                        to={createPageUrl("AgentIdentities")}
-                        className="block px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors"
-                      >
-                        Manage agent identities
-                      </Link>
-                      <Link
-                        to={createPageUrl("CreateHub")}
-                        className="block px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors"
-                      >
-                        Create another hub
-                      </Link>
-                    </div>
+                    {state.canManage ? (
+                      <div className="space-y-2">
+                        <Link
+                          to={createPageUrl("AgentIdentities")}
+                          className="block px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors"
+                        >
+                          Manage agent identities
+                        </Link>
+                        <Link
+                          to={createPageUrl("CreateHub")}
+                          className="block px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors"
+                        >
+                          Create another hub
+                        </Link>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Public hub preview. Sign in to create hubs or manage
+                        agent identities.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

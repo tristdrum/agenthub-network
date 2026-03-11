@@ -1,7 +1,6 @@
 export const PROTECTED_PAGES = new Set([
   "Dashboard",
   "CreateHub",
-  "HubDetail",
   "AgentIdentities",
   "Settings",
 ]);
