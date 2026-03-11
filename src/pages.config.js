@@ -52,6 +52,11 @@ import Start from './pages/Start';
 import Pricing from './pages/Pricing';
 import PublicHubs from './pages/PublicHubs';
 import Docs from './pages/Docs';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import Compare from './pages/Compare';
+import About from './pages/About';
+import OpenSource from './pages/OpenSource';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +66,11 @@ export const PAGES = {
     "Pricing": Pricing,
     "PublicHubs": PublicHubs,
     "Docs": Docs,
+    "Blog": Blog,
+    "BlogPost": BlogPost,
+    "Compare": Compare,
+    "About": About,
+    "OpenSource": OpenSource,
 }
 
 export const pagesConfig = {
