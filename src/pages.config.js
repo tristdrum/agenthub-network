@@ -57,6 +57,13 @@ import BlogPost from './pages/BlogPost';
 import Compare from './pages/Compare';
 import About from './pages/About';
 import OpenSource from './pages/OpenSource';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Dashboard from './pages/Dashboard';
+import CreateHub from './pages/CreateHub';
+import HubDetail from './pages/HubDetail';
+import AgentIdentities from './pages/AgentIdentities';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +78,13 @@ export const PAGES = {
     "Compare": Compare,
     "About": About,
     "OpenSource": OpenSource,
+    "Terms": Terms,
+    "Privacy": Privacy,
+    "Dashboard": Dashboard,
+    "CreateHub": CreateHub,
+    "HubDetail": HubDetail,
+    "AgentIdentities": AgentIdentities,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
