@@ -1,84 +1,68 @@
 # AgentHub Network
 
-This repo currently runs the Vite frontend that matches production at `agenthub.network`.
+This repo contains the production Vite app for `agenthub.network` and a mirrored Mintlify docs project in `docs/`.
 
-That is the rule for now: preserve the live Vite UX and iterate behind it. Do not replace the frontend framework unless the replacement is visually and behaviorally identical first.
+The short version:
 
-The repo also contains a customer-facing Mintlify docs project in `docs/`. Mintlify should be configured in monorepo mode with the docs path set to `/docs`.
-
-## Current shape
-
-- Frontend: Vite + React
-- Docs: Mintlify project in `docs/`
-- Routing/layout: Existing marketing and app shell
-- Primary local entrypoint: `npm run dev`
-- Production analytics: PostHog client-side analytics, session recording, and exception capture
+- `src/` is the live web product.
+- `/docs` in the Vite app is the website docs entrypoint.
+- `docs/` is the mirrored Mintlify docs project that must stay in sync.
+- changes should stay simple, incremental, and easy for multiple agents to ship safely.
 
 ## Local setup
 
-1. Install dependencies:
-
 ```bash
 npm install
-```
-
-2. Create `.env.local` from `.env.example`:
-
-```bash
 cp .env.example .env.local
-```
-
-3. Set the required app backend and analytics values in `.env.local`.
-
-4. Start the app:
-
-```bash
 npm run dev
 ```
 
-The local Vite app runs on `http://localhost:5173`.
+The Vite app runs on `http://localhost:5173`.
+
+## Repo shape
+
+- `src/`: Vite frontend and app shell
+- `src/content/docs-content.js`: shared docs source
+- `src/main.jsx`: frontend entrypoint
+- `src/lib/analytics.js`: PostHog bootstrap
+- `docs/`: Mintlify docs content and config
+- `docs/docs.json`: Mintlify config
+- `tests/`: repo-level tests
 
 ## Quality gates
 
-Available commands:
+Run all of these before handoff:
 
-- `npm run dev`
+- `npm run test`
 - `npm run lint`
 - `npm run typecheck`
 - `npm run build`
-- `npm run check`
 
-Docs notes:
+Local hooks:
 
-- Mintlify config file: `docs/docs.json`
-- Customer-facing docs content: `docs/*.mdx`
-- Keep docs copy product-facing unless explicitly writing internal docs
-
-Pre-commit:
-
-- `husky` runs `lint-staged`
-- staged JS/JSX files get `eslint --fix` and `prettier --write`
-- full `typecheck` runs before commit
+- pre-commit runs `lint-staged` and `npm run typecheck`
+- pre-push runs `npm run test`
+- commit messages are validated against Conventional Commits
 
 CI:
 
-- GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, and `npm run build`
+- GitHub Actions runs `npm ci`, `npm run test`, `npm run lint`, `npm run typecheck`, and `npm run build`
+
+## Docs
+
+- The website should route users to `/docs` in the Vite app.
+- Mintlify in `docs/` stays maintained as a synced mirror.
+- `npm run docs:sync` regenerates the Mintlify files from the shared docs source.
 
 ## Analytics
 
 PostHog is initialized from `src/lib/analytics.js` and booted in `src/main.jsx`.
 
-Enabled behaviors:
-
-- pageview tracking
-- pageleave tracking
-- session recording
-- client-side exception capture
-
 If `VITE_POSTHOG_KEY` is unset, PostHog stays disabled locally.
 
-## Working rules
+## Working style
 
-- The Vite marketing site is the current source of truth for frontend UX.
-- Match production before making visual claims.
-- Keep major backend/control-plane work parallel to the existing frontend instead of rewriting the site shell first.
+- Preserve parity with the live marketing site unless a deliberate redesign is requested.
+- Fix the system when recurring repo friction appears.
+- Expect frequent worktree-based changes from multiple agents.
+- Read [`AGENTS.md`](/Users/tristdrum/.codex/worktrees/1ff7/agenthub-network/AGENTS.md) before making repo-shaping changes.

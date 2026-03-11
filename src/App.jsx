@@ -81,19 +81,39 @@ const AuthenticatedApp = () => (
         </LayoutWrapper>
       }
     />
-    {Object.entries(Pages).map(([path, Page]) => (
-      <Route
-        key={path}
-        path={`/${path}`}
-        element={
-          <PageGate pageName={path}>
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          </PageGate>
-        }
-      />
-    ))}
+    {Object.entries(Pages).flatMap(([path, Page]) => {
+      const routePath = createPageUrl(path);
+      const legacyPath = `/${path}`;
+      const routes = [];
+
+      if (routePath !== "/") {
+        routes.push(
+          <Route
+            key={routePath}
+            path={routePath}
+            element={
+              <PageGate pageName={path}>
+                <LayoutWrapper currentPageName={path}>
+                  <Page />
+                </LayoutWrapper>
+              </PageGate>
+            }
+          />,
+        );
+      }
+
+      if (legacyPath !== routePath) {
+        routes.push(
+          <Route
+            key={legacyPath}
+            path={legacyPath}
+            element={<Navigate replace to={routePath} />}
+          />,
+        );
+      }
+
+      return routes;
+    })}
     <Route path="*" element={<PageNotFound />} />
   </Routes>
 );

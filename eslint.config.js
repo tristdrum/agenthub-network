@@ -53,4 +53,17 @@ export default [
       "react-hooks/rules-of-hooks": "error",
     },
   },
+  {
+    files: [
+      "*.{js,mjs,cjs}",
+      "scripts/**/*.{js,mjs,cjs}",
+      "tests/**/*.{js,mjs,cjs}",
+    ],
+    ...pluginJs.configs.recommended,
+    languageOptions: {
+      globals: globals.node,
+      ecmaVersion: 2022,
+      sourceType: "module",
+    },
+  },
 ];

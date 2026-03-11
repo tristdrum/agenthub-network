@@ -1,40 +1,91 @@
-# Rules
+# AgentHub Network Repo Guide
 
-- KISS first: choose the simplest change that satisfies the product need and keep the system easy to reason about.
-- Prefer incremental changes over framework swaps.
-- Preserve parity with the live marketing site unless the user explicitly asks for a deliberate redesign.
+## Purpose
+
+Build and operate the public AgentHub Network product.
+
+Why this exists:
+
+- AgentHub Network gives operators a hosted way to run autonomous agents against real work.
+- The product needs a clear public story, a reliable app surface, and docs that stay accurate as the system changes.
+- This repo is expected to receive frequent agent-made changes from worktrees. The system must stay easy to reason about and hard to degrade.
+
+## Operating Principles
+
+- Keep it simple. Choose the smallest change that solves the real product need.
+- Do not repeat yourself. Remove duplicate rules, duplicate docs, and duplicate logic when practical.
+- Fix the system, not just the symptom. If friction keeps recurring, improve the guardrail.
+- Prefer incremental changes over rewrites.
+- Preserve parity with the live marketing site unless a deliberate redesign is requested.
+- Customer-facing docs stay customer-facing. Internal operator notes belong elsewhere.
 - Conventional commits only.
 - No lint errors.
 
-## Product Guardrails
+## Current Product Shape
 
-- The live frontend is the Vite site in `src/`.
-- The Mintlify docs site lives in `/docs` and is customer-facing.
-- Do not replace or redesign the marketing site unless the new result is visually and behaviorally identical to production first.
-- When in doubt, compare local against `https://agenthub.network` before signoff.
-
-## Technical Guardrails
-
-- Frontend entrypoint is `src/main.jsx`.
-- Mintlify config lives at `docs/docs.json` and the Mintlify content lives under `docs/`.
+- The live frontend is the Vite app in `src/`.
+- The website's canonical docs experience is the Vite app route at `/docs`.
+- Mintlify remains in `docs/` as a maintained mirror of the same customer docs.
+- Vercel is configured around the Vite app at the repo root.
 - PostHog boots from `src/lib/analytics.js`.
-- Environment variables belong in `.env.local` and are documented in `.env.example`.
-- Keep auth and data wiring simple, explicit, and repo-local before adding abstraction.
+- Environment variables belong in `.env.local` and must be documented in `.env.example`.
 
-## Required Checks
+## Repo Map
 
-- `npm run test`
-- `npm run lint`
-- `npm run typecheck`
-- `npm run build`
+- `src/`: production Vite frontend, including the logged-out marketing surface and logged-in app pages
+- `src/main.jsx`: frontend entrypoint
+- `src/content/docs-content.js`: shared docs source used by the website docs page and Mintlify sync
+- `src/pages/Docs.jsx`: website docs surface served at `/docs`
+- `src/pages.config.js`: page registry used by the current router setup
+- `src/lib/`: app wiring, auth helpers, analytics bootstrap, and data access helpers
+- `docs/`: Mintlify config and mirrored customer-facing documentation content
+- `docs/docs.json`: Mintlify config
+- `tests/`: lightweight repo-level tests
+- `.github/workflows/`: CI and deployment automation
+- `.husky/`: local git hooks
+
+## Docs Rules
+
+- The website should point users to the Vite app route at `/docs`, not directly to the Mintlify deployment.
+- Keep the Vite docs experience and the Mintlify docs content in sync.
+- Use `src/content/docs-content.js` as the shared docs source and `npm run docs:sync` to update Mintlify files.
+- When docs content changes, update both surfaces in the same change unless there is a deliberate temporary exception.
+- Treat drift between `src/pages/Docs.jsx` and `docs/` as a bug.
+- Before changing the docs stack, have a concrete reason beyond preference and preserve current customer value first.
+
+## Routing And Naming
+
+- Keep user-facing URLs intentional and stable.
+- The current route layer is page-name driven from `src/pages.config.js`; treat route changes as product changes, not refactors.
+- If you change naming conventions, do it deliberately and preserve backwards compatibility where needed.
+
+## Agent Workflow
+
+- Expect concurrent work from multiple agents using git worktrees.
+- Make changes that are easy to review, easy to rebase, and easy to verify independently.
+- Avoid hidden coupling and broad refactors unless they pay for themselves immediately.
+- When a guardrail is missing, add it in-repo so the next agent benefits automatically.
+
+## Safety And Quality
+
+- Required local checks:
+  - `npm run test`
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run build`
+- Do not merge or hand off broken checks.
+- Keep pre-commit and CI aligned with the required checks.
+- Prefer fast automated checks locally and full verification in CI.
 
 ## Deployment Notes
 
-- Vercel is still configured around the Vite app at repo root.
-- Any new analytics or client env var must be added to local `.env.local` and to Vercel development, preview, and production environments.
+- Any new analytics or client env var must be added to `.env.example`.
+- Any new analytics or client env var must also be added in Vercel development, preview, and production environments.
+- When in doubt, compare against `https://agenthub.network` before claiming parity.
 
-## Collaboration
+## Change Guidance
 
-- If a requested change risks breaking parity with the live marketing site, stop and verify against production before continuing.
-- Keep docs copy external and customer-centric unless the user explicitly asks for internal operator documentation.
-- Fix the underlying system when repo friction blocks progress instead of papering over the immediate symptom.
+- Keep auth and data wiring explicit and repo-local before adding abstraction.
+- Preserve production behavior before improving implementation detail.
+- If a requested change risks breaking parity with the live site, stop and verify first.
+- If repo friction blocks progress, improve the repo instead of papering over the immediate issue.
