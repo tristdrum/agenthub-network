@@ -7,8 +7,9 @@ import React, {
 } from "react";
 
 import { loadProfile, updateDisplayName } from "@/lib/app-data";
-import { isAnonymousUser } from "@/lib/auth-utils";
+import { getAuthRedirectUrl, isAnonymousUser } from "@/lib/auth-utils";
 import { requireSupabaseClient, supabaseConfigError } from "@/lib/supabase";
+import { createPageUrl } from "@/utils";
 
 const AuthContext = createContext(null);
 
@@ -118,6 +119,7 @@ export function AuthProvider({ children }) {
             email,
             password,
             options: {
+              emailRedirectTo: getAuthRedirectUrl(createPageUrl("Dashboard")),
               data: displayName ? { display_name: displayName.trim() } : {},
             },
           }),

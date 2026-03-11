@@ -19,6 +19,10 @@ npm run dev
 
 The Vite app runs on `http://localhost:5173`.
 
+Set `VITE_APP_URL` to the public app origin for auth emails. In production this
+should be `https://www.agenthub.network` so signup confirmation links return
+users to the dashboard instead of the site root.
+
 ## Repo shape
 
 - `src/`: Vite frontend and app shell

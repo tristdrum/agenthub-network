@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  getAuthRedirectUrl,
   getDisplayName,
   getSafeRedirectPath,
   getWorkspaceSeed,
@@ -23,6 +24,21 @@ test("redirect paths reject external or malformed destinations", () => {
   );
   assert.equal(getSafeRedirectPath("https://example.com/phish"), "/dashboard");
   assert.equal(getSafeRedirectPath("//example.com"), "/dashboard");
+});
+
+test("auth redirects resolve against the configured app origin", () => {
+  assert.equal(
+    getAuthRedirectUrl("/dashboard", {
+      appUrl: "https://www.agenthub.network",
+    }),
+    "https://www.agenthub.network/dashboard",
+  );
+  assert.equal(
+    getAuthRedirectUrl("https://example.com/phish", {
+      appUrl: "https://www.agenthub.network",
+    }),
+    "https://www.agenthub.network/dashboard",
+  );
 });
 
 test("slugify keeps slugs simple and URL-safe", () => {

@@ -115,7 +115,7 @@ export default function Start() {
           navigate(redirectTarget);
         } else {
           setStatusMessage(
-            "Account created. Check your email if confirmation is required for this project.",
+            "Account created. Check your email and confirm your account to continue to the dashboard.",
           );
         }
       } else {
@@ -325,6 +325,13 @@ export default function Start() {
                       )}
                       {mode === "signup" ? "Create account" : "Sign in"}
                     </button>
+
+                    {mode === "signup" && (
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        We will email you a confirmation link. You need to
+                        confirm your email before you can access the dashboard.
+                      </p>
+                    )}
                   </form>
 
                   <div className="my-5 flex items-center gap-3">

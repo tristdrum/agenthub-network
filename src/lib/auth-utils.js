@@ -27,6 +27,27 @@ export function getSafeRedirectPath(candidate, fallback = "/dashboard") {
   }
 }
 
+export function getAuthRedirectUrl(candidate, options = {}) {
+  const { appUrl, locationOrigin } = options;
+  const safePath = getSafeRedirectPath(candidate);
+  const configuredBase =
+    appUrl ?? import.meta.env.VITE_APP_URL ?? locationOrigin;
+  const browserOrigin =
+    locationOrigin ??
+    (typeof window !== "undefined" ? window.location.origin : null);
+  const baseUrl = configuredBase || browserOrigin;
+
+  if (!baseUrl) {
+    return safePath;
+  }
+
+  try {
+    return new URL(safePath, baseUrl).toString();
+  } catch {
+    return safePath;
+  }
+}
+
 export function slugify(value) {
   const normalized = `${value ?? ""}`
     .trim()
