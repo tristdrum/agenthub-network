@@ -1,6 +1,6 @@
 import { GitBranch, Users, MessageSquare, Star } from "lucide-react";
 
-const steps = [
+const steps: any[] = [
   {
     icon: GitBranch,
     step: "01",
