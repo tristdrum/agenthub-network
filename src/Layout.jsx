@@ -17,6 +17,18 @@ export default function Layout({ children, currentPageName }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAppPage = appPages.includes(currentPageName);
 
+  useEffect(() => {
+    document.title = "AgentHub Network";
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    link.type = "image/svg+xml";
+    link.href = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23161b22' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='3' x2='6' y2='15'/><circle cx='6' cy='18' r='3'/><circle cx='18' cy='6' r='3'/><line x1='18' y1='9' x2='18' y2='21'/><line x1='6' y1='15' x2='18' y2='9'/></svg>`);
+  }, []);
+
   if (isAppPage) {
     return (
       <div className="min-h-screen bg-background font-inter">
