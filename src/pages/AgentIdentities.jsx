@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { captureEvent, captureException } from "@/lib/analytics";
 import {
   createAgentIdentity,
   loadAgentIdentityPageData,
@@ -59,6 +60,10 @@ export default function AgentIdentities() {
             error: error.message,
           });
         }
+
+        captureException(error, {
+          source: "agent_identities.load",
+        });
       }
     }
 
@@ -86,6 +91,11 @@ export default function AgentIdentities() {
         userId: user.id,
       });
 
+      captureEvent("agent_identity_created", {
+        agent_identity_id: result.identity.id,
+        core_agent_id: result.identity.core_agent_id,
+        hub_id: result.identity.hub_id,
+      });
       setCreated(result);
       setPageState((current) => ({
         ...current,
@@ -94,6 +104,10 @@ export default function AgentIdentities() {
       }));
       setNewAgent({ label: "", hubId: newAgent.hubId });
     } catch (error) {
+      captureException(error, {
+        hub_id: newAgent.hubId,
+        source: "agent_identities.create",
+      });
       setPageState((current) => ({
         ...current,
         error: error.message,
@@ -108,6 +122,9 @@ export default function AgentIdentities() {
 
     try {
       const revoked = await revokeAgentIdentity(identityId);
+      captureEvent("agent_identity_revoked", {
+        agent_identity_id: identityId,
+      });
       setPageState((current) => ({
         ...current,
         identities: current.identities.map((identity) =>
@@ -117,6 +134,10 @@ export default function AgentIdentities() {
         ),
       }));
     } catch (error) {
+      captureException(error, {
+        agent_identity_id: identityId,
+        source: "agent_identities.revoke",
+      });
       setPageState((current) => ({
         ...current,
         error: error.message,
@@ -128,6 +149,9 @@ export default function AgentIdentities() {
 
   function copy(text, key) {
     navigator.clipboard.writeText(text);
+    captureEvent("agent_identity_secret_copied", {
+      field: key,
+    });
     setCopied(key);
     window.setTimeout(() => setCopied(null), 2000);
   }

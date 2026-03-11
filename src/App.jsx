@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/lib/query-client";
+import AppErrorBoundary from "@/lib/AppErrorBoundary";
+import { identifyUser, resetAnalytics, trackPageView } from "@/lib/analytics";
 import { pagesConfig } from "./pages.config";
 import {
   BrowserRouter as Router,
@@ -17,6 +20,18 @@ import { isProtectedPage } from "@/lib/auth-utils";
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
+
+function getPageNameForPath(pathname) {
+  if (pathname === "/") {
+    return mainPageKey;
+  }
+
+  return (
+    Object.keys(Pages).find(
+      (pageName) => createPageUrl(pageName) === pathname,
+    ) ?? null
+  );
+}
 
 const LayoutWrapper = ({ children, currentPageName }) =>
   Layout ? (
@@ -71,63 +86,100 @@ const PageGate = ({ pageName, children }) => {
   return children;
 };
 
+const AnalyticsIdentitySync = () => {
+  const { isAnonymous, profile, user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      resetAnalytics();
+      return;
+    }
+
+    identifyUser({ user, profile, isAnonymous });
+  }, [isAnonymous, profile, user]);
+
+  return null;
+};
+
+const AnalyticsRouteTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView({
+      hash: location.hash,
+      pageName: getPageNameForPath(location.pathname),
+      pathname: location.pathname,
+      search: location.search,
+      title: document.title,
+    });
+  }, [location.hash, location.pathname, location.search]);
+
+  return null;
+};
+
 const AuthenticatedApp = () => (
-  <Routes>
-    <Route
-      path="/"
-      element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      }
-    />
-    {Object.entries(Pages).flatMap(([path, Page]) => {
-      const routePath = createPageUrl(path);
-      const legacyPath = `/${path}`;
-      const routes = [];
+  <>
+    <AnalyticsIdentitySync />
+    <AnalyticsRouteTracker />
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <LayoutWrapper currentPageName={mainPageKey}>
+            <MainPage />
+          </LayoutWrapper>
+        }
+      />
+      {Object.entries(Pages).flatMap(([path, Page]) => {
+        const routePath = createPageUrl(path);
+        const legacyPath = `/${path}`;
+        const routes = [];
 
-      if (routePath !== "/") {
-        routes.push(
-          <Route
-            key={routePath}
-            path={routePath}
-            element={
-              <PageGate pageName={path}>
-                <LayoutWrapper currentPageName={path}>
-                  <Page />
-                </LayoutWrapper>
-              </PageGate>
-            }
-          />,
-        );
-      }
+        if (routePath !== "/") {
+          routes.push(
+            <Route
+              key={routePath}
+              path={routePath}
+              element={
+                <PageGate pageName={path}>
+                  <LayoutWrapper currentPageName={path}>
+                    <Page />
+                  </LayoutWrapper>
+                </PageGate>
+              }
+            />,
+          );
+        }
 
-      if (legacyPath !== routePath) {
-        routes.push(
-          <Route
-            key={legacyPath}
-            path={legacyPath}
-            element={<Navigate replace to={routePath} />}
-          />,
-        );
-      }
+        if (legacyPath !== routePath) {
+          routes.push(
+            <Route
+              key={legacyPath}
+              path={legacyPath}
+              element={<Navigate replace to={routePath} />}
+            />,
+          );
+        }
 
-      return routes;
-    })}
-    <Route path="*" element={<PageNotFound />} />
-  </Routes>
+        return routes;
+      })}
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
+  </>
 );
 
 function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
+    <AppErrorBoundary>
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </AuthProvider>
+    </AppErrorBoundary>
   );
 }
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Check, Globe, LoaderCircle, Lock } from "lucide-react";
 
+import { captureEvent, captureException } from "@/lib/analytics";
 import { createHub } from "@/lib/app-data";
 import { slugify } from "@/lib/auth-utils";
 import { useAuth } from "@/lib/AuthContext";
@@ -25,7 +26,7 @@ export default function CreateHub() {
     setIsSubmitting(true);
 
     try {
-      const hub = await createHub({
+      const result = await createHub({
         user,
         profile,
         hub: {
@@ -35,9 +36,23 @@ export default function CreateHub() {
           visibility: form.visibility,
         },
       });
+      const hub =
+        /** @type {{id: string, slug: string, visibility: string}} */ (
+          /** @type {unknown} */ (result)
+        );
 
+      captureEvent("hub_created", {
+        has_contribution_rules: Boolean(form.rules.trim()),
+        hub_id: hub.id,
+        hub_slug: hub.slug,
+        visibility: hub.visibility,
+      });
       setCreatedHub(hub);
     } catch (submissionError) {
+      captureException(submissionError, {
+        source: "create_hub.submit",
+        visibility: form.visibility,
+      });
       setError(submissionError.message);
     } finally {
       setIsSubmitting(false);

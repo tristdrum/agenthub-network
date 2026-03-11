@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 
+import { captureEvent, captureException } from "@/lib/analytics";
 import { loadProfile, updateDisplayName } from "@/lib/app-data";
 import { getAuthRedirectUrl, isAnonymousUser } from "@/lib/auth-utils";
 import { requireSupabaseClient, supabaseConfigError } from "@/lib/supabase";
@@ -30,6 +31,10 @@ export function AuthProvider({ children }) {
       setProfile(nextProfile);
       return nextProfile;
     } catch (error) {
+      captureException(error, {
+        source: "auth.refresh_profile",
+        user_id: nextUser.id,
+      });
       setAuthError(error.message);
       setProfile(null);
       return null;
@@ -56,6 +61,9 @@ export function AuthProvider({ children }) {
       }
 
       if (error) {
+        captureException(error, {
+          source: "auth.bootstrap_session",
+        });
         setAuthError(error.message);
       }
 
@@ -86,14 +94,40 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  async function runAuthAction(action) {
+  async function runAuthAction(action, options = {}) {
+    const {
+      errorProperties = {},
+      successEvent,
+      successProperties = {},
+    } = options;
+
     setAuthError(null);
     const supabase = requireSupabaseClient();
-    const result = await action(supabase);
+
+    let result;
+
+    try {
+      result = await action(supabase);
+    } catch (error) {
+      captureException(error, {
+        source: "auth.action",
+        ...errorProperties,
+      });
+      setAuthError(error.message);
+      throw error;
+    }
 
     if (result.error) {
+      captureException(result.error, {
+        source: "auth.action",
+        ...errorProperties,
+      });
       setAuthError(result.error.message);
       throw result.error;
+    }
+
+    if (successEvent) {
+      captureEvent(successEvent, successProperties);
     }
 
     return result.data;
@@ -114,37 +148,86 @@ export function AuthProvider({ children }) {
       clearAuthError: () => setAuthError(null),
       refreshProfile: () => refreshProfile(user),
       signUp: ({ email, password, displayName }) =>
-        runAuthAction((supabase) =>
-          supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: getAuthRedirectUrl(createPageUrl("Dashboard")),
-              data: displayName ? { display_name: displayName.trim() } : {},
+        runAuthAction(
+          (supabase) =>
+            supabase.auth.signUp({
+              email,
+              password,
+              options: {
+                emailRedirectTo: getAuthRedirectUrl(createPageUrl("Dashboard")),
+                data: displayName ? { display_name: displayName.trim() } : {},
+              },
+            }),
+          {
+            errorProperties: {
+              action: "sign_up",
             },
-          }),
+            successEvent: "account_signed_up",
+            successProperties: {
+              auth_method: "password",
+            },
+          },
         ),
       signIn: ({ email, password }) =>
-        runAuthAction((supabase) =>
-          supabase.auth.signInWithPassword({
-            email,
-            password,
-          }),
+        runAuthAction(
+          (supabase) =>
+            supabase.auth.signInWithPassword({
+              email,
+              password,
+            }),
+          {
+            errorProperties: {
+              action: "sign_in",
+            },
+            successEvent: "account_signed_in",
+            successProperties: {
+              auth_method: "password",
+            },
+          },
         ),
       signInAnonymously: () =>
-        runAuthAction((supabase) => supabase.auth.signInAnonymously()),
-      signOut: () => runAuthAction((supabase) => supabase.auth.signOut()),
+        runAuthAction((supabase) => supabase.auth.signInAnonymously(), {
+          errorProperties: {
+            action: "sign_in_anonymously",
+          },
+          successEvent: "guest_access_started",
+          successProperties: {
+            auth_method: "anonymous",
+          },
+        }),
+      signOut: () =>
+        runAuthAction((supabase) => supabase.auth.signOut(), {
+          errorProperties: {
+            action: "sign_out",
+            user_id: user?.id,
+          },
+          successEvent: "account_signed_out",
+          successProperties: {
+            user_id: user?.id,
+          },
+        }),
       updateProfile: async ({ displayName }) => {
         if (!user) {
           throw new Error("You must be signed in to update your profile.");
         }
 
-        const nextProfile = await updateDisplayName(
-          user.id,
-          displayName.trim(),
-        );
-        setProfile(nextProfile);
-        return nextProfile;
+        try {
+          const nextProfile = await updateDisplayName(
+            user.id,
+            displayName.trim(),
+          );
+          setProfile(nextProfile);
+          captureEvent("profile_updated", {
+            has_display_name: Boolean(nextProfile.display_name),
+          });
+          return nextProfile;
+        } catch (error) {
+          captureException(error, {
+            source: "auth.update_profile",
+            user_id: user.id,
+          });
+          throw error;
+        }
       },
     }),
     [authError, isLoadingAuth, profile, session, user],
