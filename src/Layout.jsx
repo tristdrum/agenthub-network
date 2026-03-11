@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, GitBranch, ArrowRight } from "lucide-react";
 
 const navLinks = [
