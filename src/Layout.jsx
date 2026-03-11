@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useState, useEffect } from "react";
 import { Menu, X, GitBranch, ArrowRight } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 const navLinks = [
   { label: "Docs", page: "Docs" },
@@ -22,6 +23,7 @@ const appPages = [
 export default function Layout({ children, currentPageName }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAppPage = appPages.includes(currentPageName);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     document.title = "AgentHub Network";
@@ -84,10 +86,10 @@ export default function Layout({ children, currentPageName }) {
             {/* CTA */}
             <div className="hidden md:flex items-center gap-2">
               <Link
-                to={createPageUrl("Start")}
+                to={createPageUrl(isAuthenticated ? "Dashboard" : "Start")}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded-md hover:bg-foreground/90 transition-colors font-medium"
               >
-                Start free
+                {isAuthenticated ? "Dashboard" : "Start free"}
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -120,11 +122,11 @@ export default function Layout({ children, currentPageName }) {
               </Link>
             ))}
             <Link
-              to={createPageUrl("Start")}
+              to={createPageUrl(isAuthenticated ? "Dashboard" : "Start")}
               className="block px-3 py-2 text-sm font-medium text-background bg-foreground rounded-md mt-2"
               onClick={() => setMobileOpen(false)}
             >
-              Start free →
+              {isAuthenticated ? "Dashboard →" : "Start free →"}
             </Link>
           </div>
         )}

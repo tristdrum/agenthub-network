@@ -1,45 +1,64 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { formatDistanceToNow } from "date-fns";
 import {
-  Plus,
-  GitBranch,
-  Users,
-  Star,
-  Settings,
-  ArrowRight,
   Activity,
-  MessageSquare,
+  ArrowRight,
+  GitBranch,
+  LoaderCircle,
+  Plus,
+  Settings,
+  Users,
 } from "lucide-react";
 
-const mockHubs = [
-  {
-    id: "1",
-    name: "autoresearch-v2",
-    desc: "Overnight research loop with autonomous coding agents",
-    visibility: "public",
-    agents: 7,
-    commits: 142,
-    blessed: "c1a7f93",
-    activity: "2 mins ago",
-    open: true,
-  },
-  {
-    id: "2",
-    name: "ml-benchmark-hunt",
-    desc: "Multi-agent benchmark hunting on ML datasets",
-    visibility: "public",
-    agents: 12,
-    commits: 317,
-    blessed: "3f9a2c8",
-    activity: "1 min ago",
-    open: true,
-  },
-];
+import { loadDashboardData } from "@/lib/app-data";
+import { getDisplayName } from "@/lib/auth-utils";
+import { useAuth } from "@/lib/AuthContext";
+import { createPageUrl } from "@/utils";
 
 export default function Dashboard() {
+  const [state, setState] = useState({
+    hubs: [],
+    workspaces: [],
+    isLoading: true,
+    error: "",
+  });
+  const { isAnonymous, profile, signOut, user } = useAuth();
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function load() {
+      try {
+        const data = await loadDashboardData();
+        if (isActive) {
+          setState({
+            ...data,
+            isLoading: false,
+            error: "",
+          });
+        }
+      } catch (error) {
+        if (isActive) {
+          setState({
+            hubs: [],
+            workspaces: [],
+            isLoading: false,
+            error: error.message,
+          });
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* App header */}
       <header className="border-b border-border bg-background px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link to={createPageUrl("Home")} className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-foreground flex items-center justify-center">
@@ -48,6 +67,14 @@ export default function Dashboard() {
           <span className="font-semibold text-sm">AgentHub</span>
         </Link>
         <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2 rounded-full border border-border px-3 py-1.5">
+            <span className="text-xs font-medium">
+              {getDisplayName({ user, profile })}
+            </span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {isAnonymous ? "guest" : "operator"}
+            </span>
+          </div>
           <Link
             to={createPageUrl("AgentIdentities")}
             className="px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent"
@@ -60,16 +87,24 @@ export default function Dashboard() {
           >
             <Settings className="w-4 h-4" />
           </Link>
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="px-3 py-1.5 text-xs border border-border rounded-md hover:bg-accent transition-colors"
+          >
+            Sign out
+          </button>
         </div>
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Hubs</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Your agent collaboration projects
+              {state.workspaces.length
+                ? `Managing ${state.workspaces.length} workspace${state.workspaces.length > 1 ? "s" : ""}.`
+                : "Your authenticated operator surface lives here."}
             </p>
           </div>
           <Link
@@ -81,59 +116,67 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Hubs list */}
-        {mockHubs.length > 0 ? (
+        {isAnonymous && (
+          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-700">
+            Anonymous sessions can create data, but you lose access if you sign
+            out or clear browser storage. Use an email account when the work
+            needs to persist.
+          </div>
+        )}
+
+        {state.error && (
+          <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {state.error}
+          </div>
+        )}
+
+        {state.isLoading ? (
+          <div className="py-20 flex items-center justify-center">
+            <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : state.hubs.length ? (
           <div className="space-y-3">
-            {mockHubs.map((hub) => (
+            {state.hubs.map((hub) => (
               <Link
                 key={hub.id}
-                to={createPageUrl("HubDetail") + `?hub=${hub.name}`}
+                to={`${createPageUrl("HubDetail")}?slug=${hub.slug}`}
                 className="block border border-border rounded-xl p-5 bg-card hover:border-foreground/20 transition-all hover:shadow-sm group"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-start justify-between mb-2 gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
                       <GitBranch className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm font-mono-code">
-                        {hub.name}
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm font-mono-code truncate">
+                        {hub.slug}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {hub.desc}
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                        {hub.objective}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {hub.open && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-muted text-green-foreground text-[10px] font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse-dot" />
-                        open
-                      </span>
-                    )}
-                    <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px]">
-                      {hub.visibility}
-                    </span>
-                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] uppercase tracking-wider">
+                    {hub.visibility}
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-5 mt-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-5 mt-4 text-xs text-muted-foreground flex-wrap">
                   <span className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5" />
-                    {hub.agents} agents
+                    {hub.active_agent_count} active agent
+                    {hub.active_agent_count === 1 ? "" : "s"}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <GitBranch className="w-3.5 h-3.5" />
-                    {hub.commits} commits
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 text-amber-500" />
-                    blessed:{" "}
-                    <span className="font-mono-code">{hub.blessed}</span>
+                    {hub.workspace_name}
                   </span>
                   <span className="ml-auto flex items-center gap-1">
                     <Activity className="w-3 h-3" />
-                    {hub.activity}
+                    created{" "}
+                    {formatDistanceToNow(new Date(hub.created_at), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
               </Link>
@@ -144,7 +187,8 @@ export default function Dashboard() {
             <GitBranch className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
             <p className="font-semibold mb-1">No hubs yet</p>
             <p className="text-sm text-muted-foreground mb-4">
-              Create your first hub to get started.
+              Create your first hub and the app will provision your workspace
+              automatically.
             </p>
             <Link
               to={createPageUrl("CreateHub")}
@@ -155,26 +199,25 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Quick links */}
         <div className="mt-10 pt-8 border-t border-border grid sm:grid-cols-3 gap-3">
           {[
             {
-              icon: MessageSquare,
-              title: "Read docs",
-              desc: "Quickstart, API, guides",
-              page: "Docs",
-            },
-            {
               icon: Users,
               title: "Agent identities",
-              desc: "Create and manage agents",
+              desc: "Generate and revoke credentials per hub",
               page: "AgentIdentities",
             },
             {
               icon: GitBranch,
               title: "Public hubs",
-              desc: "Discover open hubs",
+              desc: "See how the public surface still reads",
               page: "PublicHubs",
+            },
+            {
+              icon: Settings,
+              title: "Account settings",
+              desc: "Manage your operator profile",
+              page: "Settings",
             },
           ].map(({ icon: Icon, title, desc, page }) => (
             <Link

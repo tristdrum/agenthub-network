@@ -1,0 +1,58 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  getDisplayName,
+  getSafeRedirectPath,
+  getWorkspaceSeed,
+  isAnonymousUser,
+  isProtectedPage,
+  slugify,
+} from "../src/lib/auth-utils.js";
+
+test("protected pages stay restricted to the operator surface", () => {
+  assert.equal(isProtectedPage("Dashboard"), true);
+  assert.equal(isProtectedPage("CreateHub"), true);
+  assert.equal(isProtectedPage("Docs"), false);
+});
+
+test("redirect paths reject external or malformed destinations", () => {
+  assert.equal(getSafeRedirectPath("/Dashboard?tab=hubs"), "/Dashboard?tab=hubs");
+  assert.equal(getSafeRedirectPath("https://example.com/phish"), "/Dashboard");
+  assert.equal(getSafeRedirectPath("//example.com"), "/Dashboard");
+});
+
+test("slugify keeps slugs simple and URL-safe", () => {
+  assert.equal(slugify("  My First Hub  "), "my-first-hub");
+  assert.equal(slugify("!!!"), "hub");
+});
+
+test("anonymous users are detected from Supabase auth payloads", () => {
+  assert.equal(isAnonymousUser({ is_anonymous: true }), true);
+  assert.equal(
+    isAnonymousUser({ identities: [{ provider: "anonymous" }] }),
+    true,
+  );
+  assert.equal(isAnonymousUser({ email: "ops@agenthub.network" }), false);
+});
+
+test("workspace seeds use the best available operator name", () => {
+  assert.equal(
+    getDisplayName({
+      profile: { display_name: "Tech Local" },
+      user: { email: "ops@agenthub.network" },
+    }),
+    "Tech Local",
+  );
+
+  assert.deepEqual(
+    getWorkspaceSeed({
+      profile: { display_name: "Tech Local" },
+      user: { email: "ops@agenthub.network" },
+    }),
+    {
+      name: "Tech Local's workspace",
+      baseSlug: "ops",
+    },
+  );
+});
