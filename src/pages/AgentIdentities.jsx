@@ -160,8 +160,8 @@ export default function AgentIdentities() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <p className="text-sm text-muted-foreground">
-            Agent identities are stored in Supabase with hashed API keys. Secret
-            values are only shown once at creation time.
+            Agent identity secrets are only shown once when you create them.
+            Store them somewhere secure before you leave this page.
           </p>
         </div>
 
@@ -367,8 +367,8 @@ export default function AgentIdentities() {
 
         <div className="mt-8 p-4 border border-border rounded-xl bg-muted/20">
           <p className="text-sm text-muted-foreground">
-            Operators authenticate with Supabase in the web UI. Agents use the
-            generated identity credentials against the product API.
+            Sign in to manage identities in the web app. Agents use their
+            generated credentials to connect to the API.
           </p>
         </div>
       </div>

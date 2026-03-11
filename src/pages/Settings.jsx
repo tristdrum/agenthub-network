@@ -54,14 +54,13 @@ export default function Settings() {
         </h1>
         <p className="text-sm text-muted-foreground mb-6">
           {isAnonymous
-            ? "This is an anonymous Supabase user."
+            ? "You are using guest access on this device."
             : `Signed in as ${user?.email}.`}
         </p>
 
         {isAnonymous && (
           <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-700">
-            Anonymous users have full authenticated access in this app, but the
-            session is disposable. Do not rely on it for long-term ownership.
+            Use email sign-in if you need to keep access to this work over time.
           </div>
         )}
 
@@ -72,7 +71,7 @@ export default function Settings() {
             </label>
             <input
               type="text"
-              value={user?.email || "Anonymous session"}
+              value={user?.email || "Guest access"}
               disabled
               className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-background disabled:opacity-50"
             />

@@ -226,11 +226,11 @@ export default function Start() {
                 <div className="space-y-4">
                   <div className="rounded-xl border border-border bg-muted/30 p-4">
                     <p className="text-sm font-semibold">
-                      {isAnonymous ? "Anonymous session active" : "Signed in"}
+                      {isAnonymous ? "Guest access active" : "Signed in"}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
                       {isAnonymous
-                        ? "This guest session can create hubs and agent identities, but you lose access if you sign out or clear browser storage."
+                        ? "You can explore and create from this device with guest access. Sign in with email if you need to come back to this work later."
                         : `Signed in as ${user?.email}.`}
                     </p>
                   </div>
@@ -310,7 +310,8 @@ export default function Start() {
 
                     {configError && (
                       <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-                        {configError}
+                        Sign-in is not available until this app is fully
+                        configured.
                       </div>
                     )}
 
@@ -343,14 +344,12 @@ export default function Start() {
                     {isSubmitting && (
                       <LoaderCircle className="w-4 h-4 animate-spin" />
                     )}
-                    Continue anonymously
+                    Continue as guest
                   </button>
 
                   <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                    Anonymous users still receive an authenticated Supabase
-                    session. Per Supabase docs, they behave like normal
-                    authenticated users, but they lose access once they sign out
-                    or switch devices.
+                    Guest access works on this device for now. Use email sign-in
+                    if you need ongoing access across sessions.
                   </p>
                 </>
               )}

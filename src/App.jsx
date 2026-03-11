@@ -47,8 +47,8 @@ const PageGate = ({ pageName, children }) => {
   if (configError) {
     return (
       <FullScreenMessage
-        title="Supabase configuration missing"
-        body={`${configError} Add the client auth variables before using the app routes.`}
+        title="App configuration missing"
+        body="This app is not fully configured yet. Add the required client auth settings before using app routes."
       />
     );
   }

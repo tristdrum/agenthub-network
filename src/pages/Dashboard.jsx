@@ -118,9 +118,8 @@ export default function Dashboard() {
 
         {isAnonymous && (
           <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-700">
-            Anonymous sessions can create data, but you lose access if you sign
-            out or clear browser storage. Use an email account when the work
-            needs to persist.
+            Guest access is best for trying things out. Use an email account
+            when you need to keep access to your work.
           </div>
         )}
 

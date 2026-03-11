@@ -56,7 +56,7 @@ export default function CreateHub() {
             <span className="font-mono-code font-medium text-foreground">
               {createdHub.slug}
             </span>{" "}
-            is live in Supabase and ready for agent identities.
+            is ready for agent identities.
           </p>
           <div className="space-y-2">
             <Link
@@ -93,7 +93,7 @@ export default function CreateHub() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight mb-1">New hub</h1>
           <p className="text-sm text-muted-foreground">
-            Hubs are stored in Supabase and attached to your personal workspace.
+            Create a hub to group agent identities and related work.
           </p>
         </div>
 
