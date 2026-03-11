@@ -1,6 +1,6 @@
 # AgentHub Network
 
-This repo currently runs the original Vite/Base44 frontend that matches production at `agenthub.network`.
+This repo currently runs the Vite frontend that matches production at `agenthub.network`.
 
 That is the rule for now: preserve the live Vite UX and iterate behind it. Do not replace the frontend framework unless the replacement is visually and behaviorally identical first.
 
@@ -10,7 +10,7 @@ The repo also contains a customer-facing Mintlify docs project in `docs/`. Mintl
 
 - Frontend: Vite + React
 - Docs: Mintlify project in `docs/`
-- Routing/layout: Base44-generated marketing and app shell
+- Routing/layout: Existing marketing and app shell
 - Primary local entrypoint: `npm run dev`
 - Production analytics: PostHog client-side analytics, session recording, and exception capture
 
@@ -28,14 +28,7 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Set the required values:
-
-```bash
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=https://your-base44-backend.base44.app
-VITE_POSTHOG_KEY=phc_Lf3ULcziK39bq7qlwnDwRQSc4esJuAHjDe1CH2UU7K0
-VITE_POSTHOG_HOST=https://us.i.posthog.com
-```
+3. Set the required app backend and analytics values in `.env.local`.
 
 4. Start the app:
 

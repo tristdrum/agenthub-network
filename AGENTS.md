@@ -8,7 +8,7 @@
 
 ## Product Guardrails
 
-- The live frontend is the Vite/Base44 site in `src/`.
+- The live frontend is the Vite site in `src/`.
 - The Mintlify docs site lives in `/docs` and is customer-facing.
 - Do not replace or redesign the marketing site unless the new result is visually and behaviorally identical to production first.
 - When in doubt, compare local against `https://agenthub.network` before signoff.
