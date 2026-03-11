@@ -56,7 +56,8 @@ Why this exists:
 ## Routing And Naming
 
 - Keep user-facing URLs intentional and stable.
-- The current route layer is page-name driven from `src/pages.config.js`; treat route changes as product changes, not refactors.
+- Public routes should be lowercase and explicitly mapped, not inferred from component file names.
+- `src/pages.config.js` still registers pages, but public paths should stay stable even if page names change.
 - If you change naming conventions, do it deliberately and preserve backwards compatibility where needed.
 
 ## Agent Workflow

@@ -17,9 +17,12 @@ test("protected pages stay restricted to the operator surface", () => {
 });
 
 test("redirect paths reject external or malformed destinations", () => {
-  assert.equal(getSafeRedirectPath("/Dashboard?tab=hubs"), "/Dashboard?tab=hubs");
-  assert.equal(getSafeRedirectPath("https://example.com/phish"), "/Dashboard");
-  assert.equal(getSafeRedirectPath("//example.com"), "/Dashboard");
+  assert.equal(
+    getSafeRedirectPath("/dashboard?tab=hubs"),
+    "/dashboard?tab=hubs",
+  );
+  assert.equal(getSafeRedirectPath("https://example.com/phish"), "/dashboard");
+  assert.equal(getSafeRedirectPath("//example.com"), "/dashboard");
 });
 
 test("slugify keeps slugs simple and URL-safe", () => {

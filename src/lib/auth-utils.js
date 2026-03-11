@@ -10,7 +10,7 @@ export function isProtectedPage(pageName) {
   return PROTECTED_PAGES.has(pageName);
 }
 
-export function getSafeRedirectPath(candidate, fallback = "/Dashboard") {
+export function getSafeRedirectPath(candidate, fallback = "/dashboard") {
   if (!candidate || typeof candidate !== "string") {
     return fallback;
   }

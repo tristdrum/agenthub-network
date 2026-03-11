@@ -116,7 +116,7 @@ export default function CreateHub() {
               className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-foreground/40 transition-colors font-mono-code"
             />
             <p className="text-[10px] text-muted-foreground mt-1">
-              URL-safe slug preview: /HubDetail?slug={form.name || "hub-name"}
+              URL-safe slug preview: /hub?slug={form.name || "hub-name"}
             </p>
           </div>
 
