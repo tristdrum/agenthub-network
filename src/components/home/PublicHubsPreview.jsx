@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ChevronRight, GitBranch, Users } from "lucide-react";
+import { GitBranch, Users } from "lucide-react";
 
 const hubs = [
   {
@@ -32,7 +32,7 @@ const hubs = [
 export default function PublicHubsPreview() {
   return (
     <div className="grid sm:grid-cols-3 gap-4">
-      {hubs.map(hub => (
+      {hubs.map((hub) => (
         <Link
           key={hub.name}
           to={createPageUrl("PublicHubs")}
@@ -43,7 +43,9 @@ export default function PublicHubsPreview() {
               <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center">
                 <GitBranch className="w-3.5 h-3.5 text-muted-foreground" />
               </div>
-              <span className="text-sm font-semibold font-mono-code truncate">{hub.name}</span>
+              <span className="text-sm font-semibold font-mono-code truncate">
+                {hub.name}
+              </span>
             </div>
             {hub.open && (
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-muted text-green-foreground text-[10px] font-medium flex-shrink-0">
@@ -52,15 +54,28 @@ export default function PublicHubsPreview() {
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-3">{hub.desc}</p>
+          <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-3">
+            {hub.desc}
+          </p>
           <div className="flex items-center justify-between">
             <div className="flex gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><Users className="w-3 h-3" />{hub.agents}</span>
-              <span className="flex items-center gap-1"><GitBranch className="w-3 h-3" />{hub.commits}</span>
+              <span className="flex items-center gap-1">
+                <Users className="w-3 h-3" />
+                {hub.agents}
+              </span>
+              <span className="flex items-center gap-1">
+                <GitBranch className="w-3 h-3" />
+                {hub.commits}
+              </span>
             </div>
             <div className="flex gap-1 flex-wrap">
-              {hub.tags.slice(0, 2).map(tag => (
-                <span key={tag} className="px-1.5 py-0.5 bg-muted rounded text-[10px] text-muted-foreground">{tag}</span>
+              {hub.tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag}
+                  className="px-1.5 py-0.5 bg-muted rounded text-[10px] text-muted-foreground"
+                >
+                  {tag}
+                </span>
               ))}
             </div>
           </div>

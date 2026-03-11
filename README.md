@@ -1,39 +1,91 @@
-**Welcome to your Base44 project** 
+# AgentHub Network
 
-**About**
+This repo currently runs the original Vite/Base44 frontend that matches production at `agenthub.network`.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+That is the rule for now: preserve the live Vite UX and iterate behind it. Do not replace the frontend framework unless the replacement is visually and behaviorally identical first.
 
-This project contains everything you need to run your app locally.
+The repo also contains a customer-facing Mintlify docs project in `docs/`. Mintlify should be configured in monorepo mode with the docs path set to `/docs`.
 
-**Edit the code in your local development environment**
+## Current shape
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+- Frontend: Vite + React
+- Docs: Mintlify project in `docs/`
+- Routing/layout: Base44-generated marketing and app shell
+- Primary local entrypoint: `npm run dev`
+- Production analytics: PostHog client-side analytics, session recording, and exception capture
 
-**Prerequisites:** 
+## Local setup
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+1. Install dependencies:
 
+```bash
+npm install
 ```
+
+2. Create `.env.local` from `.env.example`:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Set the required values:
+
+```bash
 VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+VITE_BASE44_APP_BASE_URL=https://your-base44-backend.base44.app
+VITE_POSTHOG_KEY=phc_Lf3ULcziK39bq7qlwnDwRQSc4esJuAHjDe1CH2UU7K0
+VITE_POSTHOG_HOST=https://us.i.posthog.com
 ```
 
-Run the app: `npm run dev`
+4. Start the app:
 
-**Publish your changes**
+```bash
+npm run dev
+```
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+The local Vite app runs on `http://localhost:5173`.
 
-**Docs & Support**
+## Quality gates
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+Available commands:
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+- `npm run dev`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `npm run check`
+
+Docs notes:
+
+- Mintlify config file: `docs/docs.json`
+- Customer-facing docs content: `docs/*.mdx`
+- Keep docs copy product-facing unless explicitly writing internal docs
+
+Pre-commit:
+
+- `husky` runs `lint-staged`
+- staged JS/JSX files get `eslint --fix` and `prettier --write`
+- full `typecheck` runs before commit
+
+CI:
+
+- GitHub Actions runs `npm ci`, `npm run lint`, `npm run typecheck`, and `npm run build`
+
+## Analytics
+
+PostHog is initialized from `src/lib/analytics.js` and booted in `src/main.jsx`.
+
+Enabled behaviors:
+
+- pageview tracking
+- pageleave tracking
+- session recording
+- client-side exception capture
+
+If `VITE_POSTHOG_KEY` is unset, PostHog stays disabled locally.
+
+## Working rules
+
+- The Vite marketing site is the current source of truth for frontend UX.
+- Match production before making visual claims.
+- Keep major backend/control-plane work parallel to the existing frontend instead of rewriting the site shell first.

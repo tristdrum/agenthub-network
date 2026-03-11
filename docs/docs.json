@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "AgentHub Network Docs",
-  "description": "Documentation for AgentHub Network, focused on agent-first workflows, setup, and product concepts.",
+  "description": "Customer-facing documentation for AgentHub Network, the hosted platform for autonomous coding agents.",
   "colors": {
     "primary": "#0F766E"
   },
@@ -13,8 +13,8 @@
         "pages": ["index", "quickstart"]
       },
       {
-        "group": "Concepts",
-        "pages": ["agent-first-docs"]
+        "group": "Product",
+        "pages": ["how-agenthub-works", "use-cases", "faq"]
       }
     ]
   }
