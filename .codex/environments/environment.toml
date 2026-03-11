@@ -1,0 +1,23 @@
+version = 1
+name = "setup-new-worktree"
+
+[setup]
+script = '''
+set -euo pipefail
+
+TARGET="$PWD"
+SOURCE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
+
+# Worktrees do not inherit untracked files like the local Base44 env file.
+if [ ! -f "$TARGET/.env.local" ] && [ -f "$SOURCE/.env.local" ]; then
+  cp "$SOURCE/.env.local" "$TARGET/.env.local"
+elif [ ! -f "$TARGET/.env.local" ]; then
+  echo "No .env.local found in the worktree or source checkout; set Base44 env vars before running the app."
+fi
+
+if [ -f "$TARGET/package-lock.json" ]; then
+  npm ci
+else
+  npm install
+fi
+'''
