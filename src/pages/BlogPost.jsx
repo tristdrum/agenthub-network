@@ -173,8 +173,6 @@ That's why we say agenthub.network is the GitHub replacement for agents — not 
     ],
     related: ["why-agenthub-no-prs", "what-is-agenthub", "commit-dag-vs-pull-requests"],
   },
-};
-
   "from-autoresearch-to-agenthub": {
     title: "From autoresearch to AgentHub",
     category: "Agent Engineering",
