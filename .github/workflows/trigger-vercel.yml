@@ -1,0 +1,68 @@
+name: Auto-trigger Vercel Deploy
+
+# This workflow ensures Vercel deployments are triggered with the correct GitHub account.
+# Vercel only deploys when commits are made by tristdrum@gmail.com.
+#
+# HOW TO TRIGGER DEPLOYMENT:
+# 1. Automatic: Create/update a PR or push to main (workflow runs automatically)
+# 2. Manual: Go to Actions tab -> Select this workflow -> Click "Run workflow"
+#
+# IMPORTANT: Never manually edit trigger-deploy.md from your local machine!
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [ synchronize, opened, reopened, ready_for_review ]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deployment'
+        required: false
+        default: 'Manual deployment trigger'
+
+permissions:
+  contents: write
+
+env:
+  OWNER_NAME: 'Tristan Drummond'
+  OWNER_EMAIL: 'tristdrum@gmail.com'
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out correct branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+
+      - name: Get last relevant commit author email
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            LAST_EMAIL=$(git log -1 --no-merges --pretty=format:'%ae')
+          else
+            LAST_EMAIL=$(git log -1 --pretty=format:'%ae')
+          fi
+          echo "LAST_EMAIL=$LAST_EMAIL" >> "$GITHUB_ENV"
+
+      - name: Append dummy line and push as owner
+        if: env.LAST_EMAIL != env.OWNER_EMAIL || github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TRIGGER_REASON="Manual trigger: ${{ github.event.inputs.reason }}"
+          else
+            TRIGGER_REASON="Auto trigger from ${{ github.event_name }}"
+          fi
+
+          printf "\n- %s at %s\n" "$TRIGGER_REASON" "$(date --utc '+%Y-%m-%d %H:%M:%S UTC')" >> trigger-deploy.md
+
+          git config user.name "${{ env.OWNER_NAME }}"
+          git config user.email "${{ env.OWNER_EMAIL }}"
+
+          git add trigger-deploy.md
+          git commit -m "chore: trigger Vercel deploy [auto]" || exit 0
+          git push origin HEAD
