@@ -1,19 +1,14 @@
 name: Auto-trigger Vercel Deploy
 
-# This workflow ensures Vercel deployments are triggered with the correct GitHub account.
-# Vercel only deploys when commits are made by tristdrum@gmail.com.
+# This workflow is kept as a manual fallback.
+# Automatic push/PR triggering is intentionally disabled.
 #
 # HOW TO TRIGGER DEPLOYMENT:
-# 1. Automatic: Create/update a PR or push to main (workflow runs automatically)
-# 2. Manual: Go to Actions tab -> Select this workflow -> Click "Run workflow"
+# 1. Manual: Go to Actions tab -> Select this workflow -> Click "Run workflow"
 #
 # IMPORTANT: Never manually edit trigger-deploy.md from your local machine!
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    types: [ synchronize, opened, reopened, ready_for_review ]
   workflow_dispatch:
     inputs:
       reason:
