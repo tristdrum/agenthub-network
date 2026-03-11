@@ -217,28 +217,59 @@ export async function createHub({ user, profile, hub }) {
 
 export async function loadHubDetails(slug) {
   const supabase = requireSupabaseClient();
-  const workspaces = await loadUserWorkspaces();
+  let hub = null;
+  let canManage = false;
 
-  if (!workspaces.length) {
-    return null;
-  }
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  const { data: hub, error: hubError } = await supabase
-    .from("hubs")
-    .select(HUB_FIELDS)
-    .eq("slug", slug)
-    .in(
-      "workspace_id",
-      workspaces.map((workspace) => workspace.id),
-    )
-    .maybeSingle();
+  if (session?.user) {
+    const workspaces = await loadUserWorkspaces();
 
-  if (hubError) {
-    throw new Error(getSupabaseErrorMessage(hubError, "Unable to load hub."));
+    if (workspaces.length) {
+      const { data: ownedHub, error: ownedHubError } = await supabase
+        .from("hubs")
+        .select(HUB_FIELDS)
+        .eq("slug", slug)
+        .in(
+          "workspace_id",
+          workspaces.map((workspace) => workspace.id),
+        )
+        .maybeSingle();
+
+      if (ownedHubError) {
+        throw new Error(
+          getSupabaseErrorMessage(ownedHubError, "Unable to load hub."),
+        );
+      }
+
+      if (ownedHub) {
+        hub = ownedHub;
+        canManage = true;
+      }
+    }
   }
 
   if (!hub) {
-    return null;
+    const { data: publicHub, error: publicHubError } = await supabase
+      .from("hubs")
+      .select(HUB_FIELDS)
+      .eq("slug", slug)
+      .eq("visibility", "public")
+      .maybeSingle();
+
+    if (publicHubError) {
+      throw new Error(
+        getSupabaseErrorMessage(publicHubError, "Unable to load hub."),
+      );
+    }
+
+    if (!publicHub) {
+      return null;
+    }
+
+    hub = publicHub;
   }
 
   const { data: identities, error: identitiesError } = await supabase
@@ -249,7 +280,7 @@ export async function loadHubDetails(slug) {
     .eq("hub_id", hub.id)
     .order("created_at", { ascending: false });
 
-  if (identitiesError) {
+  if (identitiesError && canManage) {
     throw new Error(
       getSupabaseErrorMessage(
         identitiesError,
@@ -261,6 +292,7 @@ export async function loadHubDetails(slug) {
   return {
     hub,
     identities: identities ?? [],
+    canManage,
   };
 }
 

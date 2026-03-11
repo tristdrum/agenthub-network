@@ -56,6 +56,7 @@ export default function Start() {
   const [statusMessage, setStatusMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAuthPanel, setShowAuthPanel] = useState(false);
+  const [isGuestAccessDisabled, setIsGuestAccessDisabled] = useState(false);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -140,7 +141,14 @@ export default function Start() {
     try {
       await signInAnonymously();
       navigate(redirectTarget);
-    } catch {
+    } catch (error) {
+      const message = error?.message?.toLowerCase() || "";
+      if (
+        message.includes("anonymous sign-ins are disabled") ||
+        message.includes("anonymous provider is disabled")
+      ) {
+        setIsGuestAccessDisabled(true);
+      }
       // The auth context already stores the message for display.
     } finally {
       setIsSubmitting(false);
@@ -345,18 +353,25 @@ export default function Start() {
                   <button
                     type="button"
                     onClick={handleAnonymousSignIn}
-                    disabled={isSubmitting || Boolean(configError)}
+                    disabled={
+                      isSubmitting ||
+                      Boolean(configError) ||
+                      isGuestAccessDisabled
+                    }
                     className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting && (
                       <LoaderCircle className="w-4 h-4 animate-spin" />
                     )}
-                    Continue as guest
+                    {isGuestAccessDisabled
+                      ? "Guest access unavailable"
+                      : "Continue as guest"}
                   </button>
 
                   <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                    Guest access works on this device for now. Use email sign-in
-                    if you need ongoing access across sessions.
+                    {isGuestAccessDisabled
+                      ? "Guest access is currently disabled in auth settings. Use email sign-in to continue."
+                      : "Guest access works on this device for now. Use email sign-in if you need ongoing access across sessions."}
                   </p>
                 </>
               )}
