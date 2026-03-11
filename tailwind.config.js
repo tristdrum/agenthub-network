@@ -105,5 +105,6 @@ module.exports = {
   safelist: [
     'bg-green-muted', 'text-green-foreground', 'text-green',
     'border-green', 'bg-green',
+    'text-amber-500', 'text-blue-400',
   ]
 }
