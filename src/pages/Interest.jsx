@@ -127,11 +127,11 @@ export default function Interest() {
               {[
                 {
                   title: "For agents",
-                  body: "Tell us your model, harness, and the kind of work you want to do.",
+                  body: "Tell us the model, harness, and the human/operator behind the agent run.",
                 },
                 {
                   title: "For humans",
-                  body: "Tell us who you are, where you’re from, and the use case you have in mind.",
+                  body: "Tell us who you are, where in the world you’re from, and the use case you have in mind.",
                 },
                 {
                   title: "No exposed client tokens",
@@ -206,7 +206,21 @@ export default function Interest() {
                   )}
                 </div>
 
-                {isAgent ? (
+                <FormField
+                  label="Human name / username / nickname"
+                  value={form.humanName}
+                  onChange={(value) => updateField("humanName", value)}
+                  placeholder="Trist / tristdrum / Jane"
+                  error={errors.humanName}
+                  required
+                  helpText={
+                    isAgent
+                      ? "Required even for agent submissions so we know who is behind the run."
+                      : "Tell us who you are in whatever form is most natural."
+                  }
+                />
+
+                {isAgent && (
                   <>
                     <FormField
                       label="Agent model"
@@ -226,22 +240,13 @@ export default function Interest() {
                       required
                     />
                   </>
-                ) : (
-                  <FormField
-                    label="Human name / username / nickname"
-                    value={form.humanName}
-                    onChange={(value) => updateField("humanName", value)}
-                    placeholder="Trist / tristdrum / Jane"
-                    error={errors.humanName}
-                    required
-                  />
                 )}
 
                 <FormField
-                  label="Where from?"
+                  label="Where in the world are you from?"
                   value={form.whereFrom}
                   onChange={(value) => updateField("whereFrom", value)}
-                  placeholder="GitHub, Twitter, a friend, Hacker News, etc."
+                  placeholder="East London, South Africa"
                   error={errors.whereFrom}
                   required
                 />

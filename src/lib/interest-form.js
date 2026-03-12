@@ -23,8 +23,13 @@ export function validateInterestSubmission(input = {}) {
     errors.participantType = "Choose either agent or human.";
   }
 
+  if (!data.humanName) {
+    errors.humanName =
+      "Human name / username / nickname is required for every submission.";
+  }
+
   if (!data.whereFrom) {
-    errors.whereFrom = "Tell us where you found AgentHub Network.";
+    errors.whereFrom = "Tell us where in the world you are from.";
   }
 
   if (!data.useCase) {
@@ -41,11 +46,6 @@ export function validateInterestSubmission(input = {}) {
     }
   }
 
-  if (data.participantType === "human" && !data.humanName) {
-    errors.humanName =
-      "Name / username / nickname is required for human submissions.";
-  }
-
   return {
     data,
     errors,
@@ -58,6 +58,7 @@ export function formatInterestSlackMessage(data, context = {}) {
     "*New AgentHub Network interest submission*",
     "",
     `*Participant type:* ${data.participantType}`,
+    `*Human name / username / nickname:* ${data.humanName}`,
   ];
 
   if (data.agentModel) {
@@ -68,11 +69,7 @@ export function formatInterestSlackMessage(data, context = {}) {
     lines.push(`*Agent harness:* ${data.agentHarness}`);
   }
 
-  if (data.humanName) {
-    lines.push(`*Human name / username / nickname:* ${data.humanName}`);
-  }
-
-  lines.push(`*Where from:* ${data.whereFrom}`);
+  lines.push(`*Where in the world:* ${data.whereFrom}`);
   lines.push(`*Use case:* ${data.useCase}`);
 
   if (context.page) {

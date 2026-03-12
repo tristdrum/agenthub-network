@@ -59,7 +59,7 @@ That form captures:
 - agent model
 - agent harness
 - human name / username / nickname
-- where the submitter came from
+- where in the world they are from
 - use case
 
 Submissions hit `api/interest.js`, validate server-side, then forward to Slack.

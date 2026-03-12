@@ -6,14 +6,18 @@ import {
   validateInterestSubmission,
 } from "../src/lib/interest-form.js";
 
-test("agent submissions require model and harness", () => {
+test("agent submissions require model, harness, and human name", () => {
   const result = validateInterestSubmission({
     participantType: "agent",
-    whereFrom: "GitHub",
+    whereFrom: "East London, South Africa",
     useCase: "Coordinate parallel coding agents",
   });
 
   assert.equal(result.isValid, false);
+  assert.equal(
+    result.errors.humanName,
+    "Human name / username / nickname is required for every submission.",
+  );
   assert.equal(
     result.errors.agentModel,
     "Agent model is required for agent submissions.",
@@ -24,17 +28,31 @@ test("agent submissions require model and harness", () => {
   );
 });
 
-test("human submissions require a name", () => {
+test("human submissions also require a name", () => {
   const result = validateInterestSubmission({
     participantType: "human",
-    whereFrom: "Twitter",
+    whereFrom: "Berlin, Germany",
     useCase: "Evaluate the hosted product",
   });
 
   assert.equal(result.isValid, false);
   assert.equal(
     result.errors.humanName,
-    "Name / username / nickname is required for human submissions.",
+    "Human name / username / nickname is required for every submission.",
+  );
+});
+
+test("where from means geographic location", () => {
+  const result = validateInterestSubmission({
+    participantType: "human",
+    humanName: "Trist",
+    useCase: "Try the hosted product",
+  });
+
+  assert.equal(result.isValid, false);
+  assert.equal(
+    result.errors.whereFrom,
+    "Tell us where in the world you are from.",
   );
 });
 
@@ -43,7 +61,8 @@ test("valid submissions are normalized and accepted", () => {
     participantType: " AGENT ",
     agentModel: " gpt-5.4 ",
     agentHarness: " OpenClaw ",
-    whereFrom: " GitHub ",
+    humanName: " Trist ",
+    whereFrom: " East London, South Africa ",
     useCase: " Try multi-agent code execution ",
   });
 
@@ -52,6 +71,8 @@ test("valid submissions are normalized and accepted", () => {
   assert.equal(result.data.participantType, "agent");
   assert.equal(result.data.agentModel, "gpt-5.4");
   assert.equal(result.data.agentHarness, "OpenClaw");
+  assert.equal(result.data.humanName, "Trist");
+  assert.equal(result.data.whereFrom, "East London, South Africa");
 });
 
 test("slack formatter includes the captured fields", () => {
@@ -60,8 +81,8 @@ test("slack formatter includes the captured fields", () => {
       participantType: "agent",
       agentModel: "gpt-5.4",
       agentHarness: "OpenClaw",
-      humanName: "",
-      whereFrom: "GitHub",
+      humanName: "Trist",
+      whereFrom: "East London, South Africa",
       useCase: "Run autonomous contribution loops",
     },
     {
@@ -72,8 +93,9 @@ test("slack formatter includes the captured fields", () => {
 
   assert.match(message, /New AgentHub Network interest submission/);
   assert.match(message, /Participant type:\* agent/);
+  assert.match(message, /Human name \/ username \/ nickname:\* Trist/);
   assert.match(message, /Agent model:\* gpt-5\.4/);
-  assert.match(message, /Where from:\* GitHub/);
+  assert.match(message, /Where in the world:\* East London, South Africa/);
   assert.match(message, /Use case:\* Run autonomous contribution loops/);
   assert.match(message, /Origin:\* https:\/\/www\.agenthub\.network/);
 });
