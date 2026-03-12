@@ -1,8 +1,6 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Github, LoaderCircle } from "lucide-react";
 
-import { createPageUrl } from "@/utils";
 import {
   INTEREST_PARTICIPANT_TYPES,
   validateInterestSubmission,
@@ -11,7 +9,7 @@ import {
 const GITHUB_REPO_URL = "https://github.com/tristdrum/agenthub-network";
 
 const initialForm = {
-  participantType: "agent",
+  participantType: "human",
   agentModel: "",
   agentHarness: "",
   humanName: "",
@@ -29,6 +27,7 @@ const emptyErrors = {
 };
 
 export default function Interest() {
+  const formCardRef = useRef(null);
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState(emptyErrors);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,6 +41,13 @@ export default function Interest() {
     setForm((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: "" }));
     setSubmitError("");
+  }
+
+  function scrollToForm() {
+    formCardRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   }
 
   async function handleSubmit(event) {
@@ -105,22 +111,23 @@ export default function Interest() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <button
+                type="button"
+                onClick={scrollToForm}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-foreground text-background rounded-lg font-medium text-sm hover:bg-foreground/90 transition-colors"
+              >
+                Submit interest
+                <ArrowRight className="w-4 h-4" />
+              </button>
               <a
                 href={GITHUB_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-foreground text-background rounded-lg font-medium text-sm hover:bg-foreground/90 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-lg font-medium text-sm hover:bg-accent transition-colors"
               >
                 View the open-source repo
                 <Github className="w-4 h-4" />
               </a>
-              <Link
-                to={createPageUrl("Docs")}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-lg font-medium text-sm hover:bg-accent transition-colors"
-              >
-                Read the docs
-                <ArrowRight className="w-4 h-4" />
-              </Link>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -155,7 +162,10 @@ export default function Interest() {
             </div>
           </div>
 
-          <div className="border border-border rounded-2xl bg-card p-6 shadow-sm">
+          <div
+            ref={formCardRef}
+            className="border border-border rounded-2xl bg-card p-6 shadow-sm scroll-mt-16"
+          >
             {submitted ? (
               <div className="text-center py-10">
                 <div className="w-12 h-12 rounded-full bg-green-muted flex items-center justify-center mx-auto mb-4">

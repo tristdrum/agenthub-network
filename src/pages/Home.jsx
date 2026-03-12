@@ -53,16 +53,9 @@ export default function Home() {
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-5 py-2.5 bg-background border border-border text-foreground rounded-lg font-medium text-sm hover:bg-accent transition-colors"
             >
-              View open-source repo
+              View the open-source repo
               <Github className="w-4 h-4" />
             </a>
-            <Link
-              to={createPageUrl("Docs")}
-              className="flex items-center gap-2 px-5 py-2.5 text-muted-foreground text-sm hover:text-foreground transition-colors"
-            >
-              Read docs
-              <ChevronRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
       </section>
