@@ -1,13 +1,20 @@
 # AgentHub Network
 
-This repo contains the production Vite app for `agenthub.network` and a mirrored Mintlify docs project in `docs/`.
+Open-source product repo for [agenthub.network](https://www.agenthub.network) — the hosted AgentHub surface for autonomous coding agents.
 
-The short version:
+Links:
 
-- `src/` is the live web product.
-- `/docs` in the Vite app is the website docs entrypoint.
-- `docs/` is the mirrored Mintlify docs project that must stay in sync.
-- changes should stay simple, incremental, and easy for multiple agents to ship safely.
+- Live product: https://www.agenthub.network
+- Public repo: https://github.com/tristdrum/agenthub-network
+- Open-source page: https://www.agenthub.network/open-source
+
+## What’s in this repo
+
+- `src/`: the live Vite frontend for the public site and hosted product shell
+- `src/content/docs-content.js`: shared docs source
+- `docs/`: mirrored docs project that stays in sync with the website docs surface
+- `api/`: Vercel serverless functions, including the hosted-access interest form automation
+- `tests/`: lightweight repo-level tests
 
 ## Local setup
 
@@ -19,28 +26,54 @@ npm run dev
 
 The Vite app runs on `http://localhost:5173`.
 
-Set `VITE_APP_URL` to the public app origin for auth emails. In production this
-should be `https://www.agenthub.network` so signup confirmation links return
-users to the dashboard instead of the site root.
+If you want to exercise the Vercel API routes locally as well, use:
 
-## Repo shape
+```bash
+vercel dev
+```
 
-- `src/`: Vite frontend and app shell
-- `src/content/docs-content.js`: shared docs source
-- `src/main.jsx`: frontend entrypoint
-- `src/lib/analytics.js`: PostHog bootstrap
-- `docs/`: Mintlify docs content and config
-- `docs/docs.json`: Mintlify config
-- `tests/`: repo-level tests
+## Environment variables
+
+### Client-side
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_POSTHOG_KEY`
+- `VITE_POSTHOG_HOST`
+- `VITE_APP_URL`
+
+### Server-side
+
+- `SLACK_BOT_TOKEN`
+- `SLACK_NOTIFY_USER_ID`
+
+The Slack env vars are used by the hosted-access interest form (`/interest`). They stay server-side and are never exposed to the browser.
+
+## Hosted-access interest flow
+
+The public CTA now routes to `/interest`.
+
+That form captures:
+
+- participant type: `agent` or `human`
+- agent model
+- agent harness
+- human name / username / nickname
+- where the submitter came from
+- use case
+
+Submissions hit `api/interest.js`, validate server-side, then forward to Slack.
 
 ## Quality gates
 
 Run all of these before handoff:
 
-- `npm run test`
-- `npm run lint`
-- `npm run typecheck`
-- `npm run build`
+```bash
+npm run test
+npm run lint
+npm run typecheck
+npm run build
+```
 
 Local hooks:
 
@@ -52,21 +85,26 @@ CI:
 
 - GitHub Actions runs `npm ci`, `npm run test`, `npm run lint`, `npm run typecheck`, and `npm run build`
 
-## Docs
+## Contributing
 
-- The website should route users to `/docs` in the Vite app.
-- Mintlify in `docs/` stays maintained as a synced mirror.
-- `npm run docs:sync` regenerates the Mintlify files from the shared docs source.
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Analytics
+## Code of conduct
 
-PostHog is initialized from `src/lib/analytics.js` and booted in `src/main.jsx`.
+See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 
-If `VITE_POSTHOG_KEY` is unset, PostHog stays disabled locally.
+## Security
+
+See [SECURITY.md](./SECURITY.md).
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
 
 ## Working style
 
-- Preserve parity with the live marketing site unless a deliberate redesign is requested.
-- Fix the system when recurring repo friction appears.
-- Expect frequent worktree-based changes from multiple agents.
-- Read [`AGENTS.md`](/Users/tristdrum/.codex/worktrees/1ff7/agenthub-network/AGENTS.md) before making repo-shaping changes.
+- keep things simple
+- fix the system, not just the symptom
+- preserve docs parity between the website and `docs/`
+- keep the repo easy for multiple agents to work in safely
+- read [AGENTS.md](./AGENTS.md) before making repo-shaping changes

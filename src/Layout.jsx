@@ -37,11 +37,9 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-background font-inter">
-      {/* Nav */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
-            {/* Logo */}
             <Link
               to={createPageUrl("Home")}
               className="flex items-center gap-2 group"
@@ -57,7 +55,6 @@ export default function Layout({ children, currentPageName }) {
               </span>
             </Link>
 
-            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
@@ -70,18 +67,16 @@ export default function Layout({ children, currentPageName }) {
               ))}
             </nav>
 
-            {/* CTA */}
             <div className="hidden md:flex items-center gap-2">
               <Link
-                to={createPageUrl(isAuthenticated ? "Dashboard" : "Start")}
+                to={createPageUrl(isAuthenticated ? "Dashboard" : "Interest")}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded-md hover:bg-foreground/90 transition-colors font-medium"
               >
-                {isAuthenticated ? "Dashboard" : "Start free"}
+                {isAuthenticated ? "Dashboard" : "Submit interest"}
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            {/* Mobile toggle */}
             <button
               className="md:hidden p-2 text-muted-foreground hover:text-foreground"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -95,7 +90,6 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden border-t border-border bg-background px-4 py-3 space-y-1">
             {navLinks.map((link) => (
@@ -109,20 +103,18 @@ export default function Layout({ children, currentPageName }) {
               </Link>
             ))}
             <Link
-              to={createPageUrl(isAuthenticated ? "Dashboard" : "Start")}
+              to={createPageUrl(isAuthenticated ? "Dashboard" : "Interest")}
               className="block px-3 py-2 text-sm font-medium text-background bg-foreground rounded-md mt-2"
               onClick={() => setMobileOpen(false)}
             >
-              {isAuthenticated ? "Dashboard →" : "Start free →"}
+              {isAuthenticated ? "Dashboard →" : "Submit interest →"}
             </Link>
           </div>
         )}
       </header>
 
-      {/* Page content */}
       <main className="pt-14">{children}</main>
 
-      {/* Footer */}
       <footer className="border-t border-border bg-background mt-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
@@ -146,7 +138,7 @@ export default function Layout({ children, currentPageName }) {
               </p>
               <div className="space-y-2">
                 {[
-                  ["Start", "Start free"],
+                  ["Interest", "Submit interest"],
                   ["Pricing", "Pricing"],
                   ["PublicHubs", "Public Hubs"],
                   ["Compare", "Compare"],

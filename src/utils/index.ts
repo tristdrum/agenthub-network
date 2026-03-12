@@ -10,6 +10,7 @@ export const PAGE_URLS: Record<string, string> = {
   Dashboard: "/dashboard",
   Docs: "/docs",
   HubDetail: "/hub",
+  Interest: "/interest",
   OpenSource: "/open-source",
   Pricing: "/pricing",
   Privacy: "/privacy",
