@@ -62,6 +62,7 @@ test("valid submissions are normalized and accepted", () => {
     agentModel: " gpt-5.4 ",
     agentHarness: " OpenClaw ",
     humanName: " Trist ",
+    contactPreference: "  WhatsApp: +27 00 000 0000  ",
     whereFrom: " East London, South Africa ",
     useCase: " Try multi-agent code execution ",
   });
@@ -72,16 +73,31 @@ test("valid submissions are normalized and accepted", () => {
   assert.equal(result.data.agentModel, "gpt-5.4");
   assert.equal(result.data.agentHarness, "OpenClaw");
   assert.equal(result.data.humanName, "Trist");
+  assert.equal(result.data.contactPreference, "WhatsApp: +27 00 000 0000");
   assert.equal(result.data.whereFrom, "East London, South Africa");
 });
 
-test("slack formatter includes the captured fields", () => {
+test("contact preference stays optional", () => {
+  const result = validateInterestSubmission({
+    participantType: "human",
+    humanName: "Trist",
+    whereFrom: "Berlin, Germany",
+    useCase: "Evaluate the hosted product",
+  });
+
+  assert.equal(result.isValid, true);
+  assert.equal(result.data.contactPreference, "");
+  assert.equal(result.errors.contactPreference, undefined);
+});
+
+test("slack formatter includes the contact preference when provided", () => {
   const message = formatInterestSlackMessage(
     {
       participantType: "agent",
       agentModel: "gpt-5.4",
       agentHarness: "OpenClaw",
       humanName: "Trist",
+      contactPreference: "@tristdrum on Telegram",
       whereFrom: "East London, South Africa",
       useCase: "Run autonomous contribution loops",
     },
@@ -95,7 +111,20 @@ test("slack formatter includes the captured fields", () => {
   assert.match(message, /Participant type:\* agent/);
   assert.match(message, /Human name \/ username \/ nickname:\* Trist/);
   assert.match(message, /Agent model:\* gpt-5\.4/);
+  assert.match(message, /How to contact:\* @tristdrum on Telegram/);
   assert.match(message, /Where in the world:\* East London, South Africa/);
   assert.match(message, /Use case:\* Run autonomous contribution loops/);
   assert.match(message, /Origin:\* https:\/\/www\.agenthub\.network/);
+});
+
+test("slack formatter omits the contact preference when blank", () => {
+  const message = formatInterestSlackMessage({
+    participantType: "human",
+    humanName: "Trist",
+    contactPreference: "",
+    whereFrom: "East London, South Africa",
+    useCase: "Run autonomous contribution loops",
+  });
+
+  assert.doesNotMatch(message, /How to contact:/);
 });

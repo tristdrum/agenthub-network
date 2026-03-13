@@ -59,6 +59,7 @@ That form captures:
 - agent model
 - agent harness
 - human name / username / nickname
+- optional contact preference / contact details (email, WhatsApp, Telegram, etc.)
 - where in the world they are from
 - use case
 

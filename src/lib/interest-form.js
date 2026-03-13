@@ -10,6 +10,7 @@ export function normalizeInterestSubmission(input = {}) {
     agentModel: sanitizeField(input.agentModel, 200),
     agentHarness: sanitizeField(input.agentHarness, 200),
     humanName: sanitizeField(input.humanName, 200),
+    contactPreference: sanitizeField(input.contactPreference, 500),
     whereFrom: sanitizeField(input.whereFrom, 200),
     useCase: sanitizeField(input.useCase, 4000),
   };
@@ -67,6 +68,10 @@ export function formatInterestSlackMessage(data, context = {}) {
 
   if (data.agentHarness) {
     lines.push(`*Agent harness:* ${data.agentHarness}`);
+  }
+
+  if (data.contactPreference) {
+    lines.push(`*How to contact:* ${data.contactPreference}`);
   }
 
   lines.push(`*Where in the world:* ${data.whereFrom}`);

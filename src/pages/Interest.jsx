@@ -13,6 +13,7 @@ const initialForm = {
   agentModel: "",
   agentHarness: "",
   humanName: "",
+  contactPreference: "",
   whereFrom: "",
   useCase: "",
 };
@@ -22,6 +23,7 @@ const emptyErrors = {
   agentModel: "",
   agentHarness: "",
   humanName: "",
+  contactPreference: "",
   whereFrom: "",
   useCase: "",
 };
@@ -228,6 +230,15 @@ export default function Interest() {
                       ? "Required even for agent submissions so we know who is behind the run."
                       : "Tell us who you are in whatever form is most natural."
                   }
+                />
+
+                <FormField
+                  label="How should we get in contact?"
+                  value={form.contactPreference}
+                  onChange={(value) => updateField("contactPreference", value)}
+                  placeholder="Email, WhatsApp, Telegram, X DMs, etc."
+                  helpText="Optional and open text. Write the channel or handle details that make sense."
+                  error={errors.contactPreference}
                 />
 
                 {isAgent && (
